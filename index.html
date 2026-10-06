@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>고1 아침 공부 인증 챌린지</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c'
+            },
+            accent: {
+              500: '#6366f1',
+              600: '#4f46e5'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between antialiased">
+
+  <!-- Top App Bar -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-md mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-sm shadow-md">
+          <i class="fa-solid fa-sun text-amber-200"></i>
+        </span>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <h1 class="font-bold text-sm leading-tight text-slate-800">모닝 스터디 챌린지</h1>
+            <span id="gasStatusPill" class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>시트연동
+            </span>
+          </div>
+          <p id="headerDate" class="text-[11px] text-slate-600 font-medium"></p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-1">
+        <!-- Settings / GAS Guide Button -->
+        <button id="btnGasSettings" class="p-2 text-slate-600 hover:text-brand-600 rounded-lg transition" title="구글 시트 연동 설정">
+          <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+        </button>
+        <!-- User Switch Button -->
+        <button id="btnLogout" class="hidden p-2 text-slate-600 hover:text-red-500 rounded-lg transition" title="닉네임 변경">
+          <i class="fa-solid fa-arrow-right-from-bracket text-base"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content View Area -->
+  <main class="flex-1 max-w-md w-full mx-auto p-4 pb-24">
+
+    <!-- 1. NICKNAME LOGIN VIEW (첫 방문 또는 미로그인 시) -->
+    <section id="viewLogin" class="flex flex-col items-center justify-center pt-8">
+      <div class="w-full bg-white rounded-3xl p-6 shadow-sm border border-slate-200 text-center">
+        <div class="w-20 h-20 bg-orange-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 mb-1">우리 반 아침 자율학습</h2>
+        <p class="text-xs text-slate-600 mb-6">고등학교 1학년의 첫 걸음, 아침 20분이 모여 기적을 만듭니다.</p>
+
+        <form id="loginForm" class="space-y-4">
+          <div class="text-left">
+            <label class="block text-xs font-semibold text-slate-700 mb-1 ml-1" for="nicknameInput">
+              이름 또는 닉네임 (예: 10405 김하늘)
+            </label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <i class="fa-solid fa-user-pen text-sm"></i>
+              </span>
+              <input type="text" id="nicknameInput" required placeholder="학번과 이름을 입력해주세요" 
+                     class="w-full pl-9 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition" />
+            </div>
+          </div>
+          <button type="submit" id="btnLoginSubmit"
+                  class="w-full py-3.5 bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white font-semibold rounded-xl text-sm shadow-md shadow-brand-500/20 active:scale-[0.98] transition flex items-center justify-center space-x-2">
+            <span>아침 공부 시작하기</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </button>
+        </form>
+
+        <div class="mt-6 pt-5 border-t border-slate-100 text-[11px] text-slate-600 flex items-center justify-center space-x-1">
+          <i class="fa-solid fa-shield-halved text-emerald-500"></i>
+          <span>한 번 입력한 닉네임은 기기에 자동 저장됩니다.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. AUTHENTICATED CONTAINER (로그인 후 탭 뷰) -->
+    <div id="viewApp" class="hidden space-y-4">
+
+      <!-- Streak & Greeting Banner -->
+      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-3xl p-5 shadow-lg relative overflow-hidden">
+        <div class="absolute -right-4 -bottom-6 opacity-10 text-white text-8xl pointer-events-none">
+          <i class="fa-solid fa-fire"></i>
+        </div>
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-orange-500/30 text-orange-300 font-medium">1학년 챌린저</span>
+              <span id="userNicknameBadge" class="text-xs font-semibold text-slate-300"></span>
+            </div>
+            <h3 class="text-lg font-bold mt-1 text-white">
+              누적 <span id="userStreakCount" class="text-2xl text-amber-400 font-extrabold mx-0.5">0</span>일째 인증 성공! 🔥
+            </h3>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-white/10 flex flex-col items-center justify-center border border-white/10">
+            <span class="text-[10px] text-slate-300 uppercase">Status</span>
+            <span id="todayStatusBadge" class="text-xs font-bold text-amber-300">미인증</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 1: MY CHALLENGE RECORD -->
+      <section id="tabMyChallenge" class="space-y-4">
+        
+        <!-- Today Resolution & Verification Form -->
+        <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200">
+          <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-100">
+            <i class="fa-solid fa-pencil text-brand-500"></i>
+            <h3 class="font-bold text-sm text-slate-800">오늘의 아침 인증하기</h3>
+          </div>
+
+          <form id="recordForm" class="space-y-4">
+            <!-- Resolution Input -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5" for="dailyResolution">
+                오늘 나의 결심 <span class="text-brand-500">*</span>
+              </label>
+              <textarea id="dailyResolution" rows="2" required placeholder="예: 수학 부교재 3문제 풀고 하루를 시작하자!"
+                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition resize-none"></textarea>
+            </div>
+
+            <!-- Photo Upload Methods -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                공부 사진 인증 (책상/문제집/플래너) <span class="text-brand-500">*</span>
+              </label>
+              
+              <div class="grid grid-cols-2 gap-2">
+                <!-- Camera Button -->
+                <button type="button" id="btnTriggerCamera" 
+                        class="flex flex-col items-center justify-center p-3.5 bg-orange-50/80 hover:bg-orange-100/80 border border-brand-200 rounded-xl transition text-brand-700">
+                  <i class="fa-solid fa-camera text-xl mb-1 text-brand-600"></i>
+                  <span class="text-xs font-bold">카메라 촬영</span>
+                  <span class="text-[10px] text-brand-500">지금 바로 찍기</span>
+                </button>
+
+                <!-- File/Gallery Button -->
+                <button type="button" id="btnTriggerFile" 
+                        class="flex flex-col items-center justify-center p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition text-slate-700">
+                  <i class="fa-regular fa-images text-xl mb-1 text-slate-600"></i>
+                  <span class="text-xs font-bold">앨범에서 선택</span>
+                  <span class="text-[10px] text-slate-400">보관된 사진 불러오기</span>
+                </button>
+              </div>
+
+              <!-- Hidden Native File Inputs -->
+              <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
+              <input type="file" id="fileInput" accept="image/*" class="hidden">
+
+              <!-- Photo Preview Container -->
+              <div id="previewContainer" class="hidden mt-3 relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 flex items-center justify-center max-h-56">
+                <img id="imagePreview" src="" alt="인증 미리보기" class="w-full h-auto object-cover max-h-56">
+                <button type="button" id="btnRemoveImage" 
+                        class="absolute top-2 right-2 w-8 h-8 rounded-full bg-slate-900/80 hover:bg-red-600 text-white flex items-center justify-center text-xs transition">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="btnSubmitVerification"
+                    class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl text-sm shadow-md shadow-brand-500/25 active:scale-[0.98] transition flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-check-circle"></i>
+              <span>인증 제출 및 기록하기</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- My Past History List -->
+        <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-calendar-check text-emerald-500"></i>
+              <h3 class="font-bold text-sm text-slate-800">나의 인증 기록함</h3>
+            </div>
+            <span id="myRecordCount" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">0건</span>
+          </div>
+
+          <!-- Empty State & List Container -->
+          <div id="myRecordsList" class="space-y-3">
+            <div class="py-8 text-center text-slate-400 text-xs">
+              <i class="fa-solid fa-inbox text-2xl mb-2 block text-slate-300"></i>
+              아직 등록된 인증 기록이 없습니다.<br>오늘의 첫 아침 공부를 기록해보세요!
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TAB 2: CLASS FEED -->
+      <section id="tabClassFeed" class="hidden space-y-4">
+        
+        <!-- Feed Stats Banner -->
+        <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-200 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-amber-100 text-brand-600 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-400 font-medium">오늘 우리 반 아침 현황</p>
+              <h4 class="text-sm font-bold text-slate-800">
+                오늘 <span id="classTodayCount" class="text-brand-600 font-extrabold text-base">0</span>명이 인증을 마쳤어요! ☀️
+              </h4>
+            </div>
+          </div>
+          <button id="btnRefreshFeed" class="p-2 text-slate-400 hover:text-brand-600 transition" title="새로고침">
+            <i class="fa-solid fa-rotate-right text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Feed Stream Container -->
+        <div id="classFeedList" class="space-y-4">
+          <div class="py-12 bg-white rounded-3xl border border-slate-200 text-center text-slate-400 text-xs p-6">
+            <i class="fa-solid fa-comments text-2xl mb-2 block text-slate-300"></i>
+            아직 반 친구들의 인증이 올라오지 않았습니다.<br>가장 먼저 아침 인증을 올리고 반을 이끌어보세요!
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Bottom Floating Navigation (Logged-in only) -->
+  <nav id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 safe-bottom">
+    <div class="max-w-md mx-auto px-6 h-16 flex items-center justify-around">
+      <!-- Tab 1 Button -->
+      <button id="navTabMy" class="flex-1 py-1 flex flex-col items-center justify-center text-brand-600 font-bold transition">
+        <i class="fa-solid fa-calendar-check text-lg mb-0.5"></i>
+        <span class="text-[11px]">나의 챌린지</span>
+      </button>
+
+      <!-- Center Add Floating Indicator -->
+      <div class="w-12 h-12 -mt-5 rounded-full bg-brand-500 text-white flex items-center justify-center shadow-lg shadow-brand-500/30 border-4 border-white pointer-events-none">
+        <i class="fa-solid fa-pencil text-sm"></i>
+      </div>
+
+      <!-- Tab 2 Button -->
+      <button id="navTabClass" class="flex-1 py-1 flex flex-col items-center justify-center text-slate-400 font-semibold hover:text-brand-500 transition">
+        <i class="fa-solid fa-users-viewfinder text-lg mb-0.5"></i>
+        <span class="text-[11px]">우리 반 피드</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Google Apps Script & Settings Modal -->
+  <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h4 class="font-bold text-sm text-slate-800 flex items-center space-x-1.5">
+          <i class="fa-solid fa-gear text-brand-500"></i>
+          <span>선생님 연동 설정 (Google Sheet)</span>
+        </h4>
+        <button id="btnCloseSettings" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-4 text-xs text-slate-600 leading-relaxed">
+        <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200/60 text-amber-800">
+          <p class="font-bold text-[11px] mb-1 flex items-center gap-1">
+            <i class="fa-solid fa-circle-info"></i> 안내사항
+          </p>
+          본 웹앱은 기본적으로 브라우저(Local)에 안전하게 저장되며, 아래에 <strong>Google Apps Script 배포 URL</strong>을 입력하시면 학급 스프레드시트와 실시간 양방향 동기화됩니다.
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1" for="gasUrlInput">
+            Apps Script 웹앱 URL
+          </label>
+          <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
+                 class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+
+        <div class="flex space-x-2">
+          <button id="btnSaveGasUrl" class="flex-1 py-2.5 bg-brand-500 text-white font-semibold rounded-xl text-xs shadow hover:bg-brand-600 transition">
+            URL 저장하기
+          </button>
+          <button id="btnToggleCodeGuide" class="py-2.5 px-3 bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs hover:bg-slate-200 transition">
+            코드 보기
+          </button>
+        </div>
+
+        <!-- GAS Code template section for teacher -->
+        <div id="gasCodeGuide" class="hidden mt-3 p-3 bg-slate-900 text-slate-200 rounded-xl font-mono text-[10px] overflow-x-auto max-h-48">
+          <p class="text-amber-400 mb-1">// 구글 스프레드시트 > 확장 프로그램 > Apps Script에 붙여넣고 [웹앱] 배포 (액세스 권한: 모든 사용자)</p>
+          <pre><code>function doGet() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+  const rows = data.slice(1);
+  const result = rows.map(r => ({
+    id: r[0],
+    nickname: r[1],
+    date: r[2],
+    time: r[3],
+    resolution: r[4],
+    photo: r[5],
+    cheers: Number(r[6] || 0)
+  }));
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["ID", "닉네임", "날짜", "시각", "결심", "사진", "응원수"]);
+  }
+  const body = JSON.parse(e.postData.contents);
+  sheet.appendRow([body.id, body.nickname, body.date, body.time, body.resolution, body.photo, body.cheers || 0]);
+  return ContentService.createTextOutput(JSON.stringify({status: "success"})).setMimeType(ContentService.MimeType.JSON);
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-time In-App Camera Viewfinder Modal -->
+  <div id="cameraModal" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between">
+    <!-- Camera Top Bar -->
+    <div class="p-4 flex items-center justify-between z-10 bg-gradient-to-b from-black/80 to-transparent">
+      <div class="flex items-center space-x-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+        <span class="text-white text-xs font-semibold">실시간 카메라 촬영</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <!-- Switch Front / Back Camera -->
+        <button id="btnFlipCamera" type="button" class="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition" title="카메라 전환">
+          <i class="fa-solid fa-arrows-rotate text-sm"></i>
+        </button>
+        <!-- Close Camera -->
+        <button id="btnCloseCamera" type="button" class="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition" title="닫기">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Viewfinder & Guidelines -->
+    <div class="relative flex-1 flex items-center justify-center overflow-hidden bg-black">
+      <video id="cameraVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
+      <div class="absolute inset-8 border-2 border-white/40 border-dashed rounded-3xl pointer-events-none flex items-center justify-center">
+        <p class="text-white/80 text-xs bg-black/50 px-3 py-1.5 rounded-full backdrop-blur-sm">책상이나 공부 노트를 중앙에 맞춰주세요</p>
+      </div>
+    </div>
+
+    <!-- Shutter Button Bottom Bar -->
+    <div class="p-6 bg-gradient-to-t from-black/90 to-transparent flex items-center justify-center z-10 pb-10">
+      <button id="btnCapturePhoto" type="button" class="w-20 h-20 rounded-full border-4 border-white p-1 flex items-center justify-center active:scale-90 transition">
+        <span class="w-full h-full rounded-full bg-brand-500 hover:bg-brand-600 transition flex items-center justify-center shadow-lg">
+          <i class="fa-solid fa-camera text-white text-2xl"></i>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Image Detail Viewer Modal -->
+  <div id="imageDetailModal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4">
+    <button id="btnCloseImageDetail" class="absolute top-4 right-4 text-white text-xl p-2">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <img id="detailModalImg" src="" alt="상세 사진" class="max-w-full max-h-[80vh] rounded-xl object-contain shadow-2xl">
+    <p id="detailModalCaption" class="mt-4 text-white text-xs max-w-sm text-center px-4"></p>
+  </div>
+
+  <!-- Custom Logout Modal (confirm() 대체) -->
+  <div id="logoutModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xs w-full p-5 text-center shadow-2xl border border-slate-100">
+      <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      </div>
+      <h4 class="font-bold text-slate-800 text-sm mb-1">닉네임 변경</h4>
+      <p class="text-xs text-slate-500 mb-5">현재 계정을 로그아웃하고 다른 닉네임으로 전환하시겠습니까?</p>
+      <div class="flex space-x-2">
+        <button id="btnCancelLogout" class="flex-1 py-2.5 bg-slate-100 text-slate-600 font-semibold rounded-xl text-xs hover:bg-slate-200 transition">
+          취소
+        </button>
+        <button id="btnConfirmLogout" class="flex-1 py-2.5 bg-rose-500 text-white font-semibold rounded-xl text-xs hover:bg-rose-600 transition shadow">
+          로그아웃
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Floating Toast -->
+  <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden transition-all duration-300 max-w-xs w-full px-4">
+    <div id="toastInner" class="bg-slate-900 text-white text-xs py-3 px-4 rounded-2xl shadow-xl flex items-center space-x-2 border border-slate-700">
+      <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+      <span id="toastMsg" class="font-medium truncate"></span>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. STATE & STORAGE MANAGEMENT
+       ========================================================================= */
+    const STORAGE_KEY_USER = "morning_study_nickname";
+    const STORAGE_KEY_FEED = "morning_study_records";
+    const STORAGE_KEY_GAS = "morning_study_gas_url";
+
+    // 전달해주신 신규 구글 앱스스크립트 배포 URL 적용
+    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbx3v_rC0g5VzajpApkAMNkEFDcbLZ5q2lW3bjLeT8innz7-KyNuQESmzrKxm-y4Rra1/exec";
+
+    let state = {
+      currentUser: localStorage.getItem(STORAGE_KEY_USER) || "",
+      gasUrl: localStorage.getItem(STORAGE_KEY_GAS) || DEFAULT_GAS_URL,
+      records: JSON.parse(localStorage.getItem(STORAGE_KEY_FEED) || "[]"),
+      currentTab: "my", // "my" or "class"
+      stagedImageBase64: null
+    };
+
+    let cameraStream = null;
+    let currentFacingMode = "environment"; // default to back camera
+
+    const el = {
+      headerDate: document.getElementById("headerDate"),
+      btnGasSettings: document.getElementById("btnGasSettings"),
+      btnLogout: document.getElementById("btnLogout"),
+      viewLogin: document.getElementById("viewLogin"),
+      viewApp: document.getElementById("viewApp"),
+      loginForm: document.getElementById("loginForm"),
+      nicknameInput: document.getElementById("nicknameInput"),
+      userNicknameBadge: document.getElementById("userNicknameBadge"),
+      userStreakCount: document.getElementById("userStreakCount"),
+      todayStatusBadge: document.getElementById("todayStatusBadge"),
+      bottomNav: document.getElementById("bottomNav"),
+      navTabMy: document.getElementById("navTabMy"),
+      navTabClass: document.getElementById("navTabClass"),
+      tabMyChallenge: document.getElementById("tabMyChallenge"),
+      tabClassFeed: document.getElementById("tabClassFeed"),
+      recordForm: document.getElementById("recordForm"),
+      dailyResolution: document.getElementById("dailyResolution"),
+      btnTriggerCamera: document.getElementById("btnTriggerCamera"),
+      btnTriggerFile: document.getElementById("btnTriggerFile"),
+      cameraInput: document.getElementById("cameraInput"),
+      fileInput: document.getElementById("fileInput"),
+      previewContainer: document.getElementById("previewContainer"),
+      imagePreview: document.getElementById("imagePreview"),
+      btnRemoveImage: document.getElementById("btnRemoveImage"),
+      myRecordsList: document.getElementById("myRecordsList"),
+      myRecordCount: document.getElementById("myRecordCount"),
+      classFeedList: document.getElementById("classFeedList"),
+      classTodayCount: document.getElementById("classTodayCount"),
+      btnRefreshFeed: document.getElementById("btnRefreshFeed"),
+      settingsModal: document.getElementById("settingsModal"),
+      btnCloseSettings: document.getElementById("btnCloseSettings"),
+      gasUrlInput: document.getElementById("gasUrlInput"),
+      btnSaveGasUrl: document.getElementById("btnSaveGasUrl"),
+      btnToggleCodeGuide: document.getElementById("btnToggleCodeGuide"),
+      gasCodeGuide: document.getElementById("gasCodeGuide"),
+      toast: document.getElementById("toast"),
+      toastMsg: document.getElementById("toastMsg"),
+      toastIcon: document.getElementById("toastIcon"),
+      imageDetailModal: document.getElementById("imageDetailModal"),
+      btnCloseImageDetail: document.getElementById("btnCloseImageDetail"),
+      detailModalImg: document.getElementById("detailModalImg"),
+      detailModalCaption: document.getElementById("detailModalCaption"),
+      cameraModal: document.getElementById("cameraModal"),
+      cameraVideo: document.getElementById("cameraVideo"),
+      btnCloseCamera: document.getElementById("btnCloseCamera"),
+      btnCapturePhoto: document.getElementById("btnCapturePhoto"),
+      btnFlipCamera: document.getElementById("btnFlipCamera")
+    };
+
+    const logoutModal = document.getElementById("logoutModal");
+    const btnCancelLogout = document.getElementById("btnCancelLogout");
+    const btnConfirmLogout = document.getElementById("btnConfirmLogout");
+
+    function getTodayString() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getTimeString() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      return `${h}:${min}`;
+    }
+
+    function formatFriendlyDate(dateStr) {
+      const [y, m, d] = dateStr.split('-');
+      return `${parseInt(m, 10)}월 ${parseInt(d, 10)}일`;
+    }
+
+    function showToast(message, type = "success") {
+      el.toastMsg.textContent = message;
+      if (type === "success") {
+        el.toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+      } else if (type === "error") {
+        el.toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400";
+      } else {
+        el.toastIcon.className = "fa-solid fa-circle-info text-amber-400";
+      }
+      el.toast.classList.remove("hidden");
+      setTimeout(() => {
+        el.toast.classList.add("hidden");
+      }, 3000);
+    }
+
+    // Apps Script 및 모바일 대역폭에 맞춰 캔버스를 통해 스마트 리사이징 (최대 1000px, JPEG 압축)
+    function processImageFile(file) {
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        showToast("이미지 파일만 등록할 수 있습니다.", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          const maxDimension = 900;
+
+          if (width > height && width > maxDimension) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else if (height > maxDimension) {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Quality 0.72 for fast sync and low footprint
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.72);
+          state.stagedImageBase64 = compressedDataUrl;
+          el.imagePreview.src = compressedDataUrl;
+          el.previewContainer.classList.remove("hidden");
+          showToast("사진이 준비되었습니다.");
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function calculateUserStreak(nickname) {
+      const userRecords = state.records.filter(r => r.nickname === nickname);
+      // 고유 날짜 집합 추출
+      const uniqueDates = [...new Set(userRecords.map(r => r.date))];
+      return uniqueDates.length;
+    }
+
+    function hasUserVerifiedToday(nickname) {
+      const today = getTodayString();
+      return state.records.some(r => r.nickname === nickname && r.date === today);
+    }
+
+    async function syncFromGas() {
+      if (!state.gasUrl) return;
+      try {
+        const response = await fetch(state.gasUrl);
+        if (!response.ok) throw new Error("네트워크 응답 오류");
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          // 로컬 데이터와 원격 데이터 병합 (중복 ID 방지)
+          const merged = [...state.records];
+          data.forEach(item => {
+            if (!merged.some(m => m.id === item.id)) {
+              merged.push(item);
+            }
+          });
+          state.records = merged;
+          localStorage.setItem(STORAGE_KEY_FEED, JSON.stringify(state.records));
+          renderAll();
+        }
+      } catch (err) {
+        console.error("GAS Sync error:", err);
+      }
+    }
+
+    // 학생 로그인(접속) 시 구글 스프레드시트에 즉시 출석 기록 전송
+    async function sendLoginToGas(nickname) {
+      if (!state.gasUrl) return;
+      try {
+        await fetch(state.gasUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "login",
+            nickname: nickname,
+            date: getTodayString(),
+            time: getTimeString()
+          })
+        });
+      } catch (err) {
+        console.warn("GAS Login sync failed:", err);
+      }
+    }
+
+    async function sendRecordToGas(record) {
+      if (!state.gasUrl) return;
+      try {
+        await fetch(state.gasUrl, {
+          method: "POST",
+          mode: "no-cors", // Google Apps Script Web App CORS 표준 처리
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(record)
+        });
+      } catch (err) {
+        console.warn("GAS Post failed, saved locally:", err);
+      }
+    }
+
+    function renderAppHeader() {
+      const now = new Date();
+      const options = { month: 'long', day: 'numeric', weekday: 'short' };
+      el.headerDate.textContent = now.toLocaleDateString('ko-KR', options);
+
+      if (state.currentUser) {
+        el.viewLogin.classList.add("hidden");
+        el.viewApp.classList.remove("hidden");
+        el.bottomNav.classList.remove("hidden");
+        el.btnLogout.classList.remove("hidden");
+
+        const streak = calculateUserStreak(state.currentUser);
+        el.userNicknameBadge.textContent = state.currentUser;
+        el.userStreakCount.textContent = streak;
+
+        const isTodayDone = hasUserVerifiedToday(state.currentUser);
+        if (isTodayDone) {
+          el.todayStatusBadge.textContent = "인증완료";
+          el.todayStatusBadge.className = "text-xs font-bold text-emerald-400";
+        } else {
+          el.todayStatusBadge.textContent = "미인증";
+          el.todayStatusBadge.className = "text-xs font-bold text-amber-300";
+        }
+      } else {
+        el.viewLogin.classList.remove("hidden");
+        el.viewApp.classList.add("hidden");
+        el.bottomNav.classList.add("hidden");
+        el.btnLogout.classList.add("hidden");
+      }
+    }
+
+    function renderMyRecords() {
+      const userRecords = state.records
+        .filter(r => r.nickname === state.currentUser)
+        .sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+
+      el.myRecordCount.textContent = `${userRecords.length}건`;
+
+      if (userRecords.length === 0) {
+        el.myRecordsList.innerHTML = `
+          <div class="py-8 text-center text-slate-400 text-xs">
+            <i class="fa-solid fa-inbox text-2xl mb-2 block text-slate-300"></i>
+            아직 등록된 인증 기록이 없습니다.<br>오늘의 첫 아침 공부를 기록해보세요!
+          </div>
+        `;
+        return;
+      }
+
+      el.myRecordsList.innerHTML = userRecords.map(item => `
+        <div class="border border-slate-100 bg-slate-50/70 p-3 rounded-2xl flex items-center justify-between gap-3 hover:bg-slate-50 transition">
+          <div class="flex items-center space-x-3 overflow-hidden">
+            <img src="${item.photo}" alt="인증사진" 
+                 onclick="openImageDetail('${item.photo}', '${escapeHtml(item.resolution)}')"
+                 class="w-14 h-14 object-cover rounded-xl cursor-pointer hover:opacity-90 border border-slate-200 shrink-0">
+            <div class="min-w-0">
+              <div class="flex items-center space-x-2 text-[11px] text-slate-600 mb-0.5">
+                <span class="font-semibold text-slate-700">${formatFriendlyDate(item.date)}</span>
+                <span>•</span>
+                <span>${item.time}</span>
+              </div>
+              <p class="text-xs font-medium text-slate-800 line-clamp-2">${escapeHtml(item.resolution)}</p>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="inline-flex items-center space-x-1 text-xs text-rose-500 font-semibold bg-rose-50 px-2 py-1 rounded-full">
+              <i class="fa-solid fa-heart text-[10px]"></i>
+              <span>${item.cheers || 0}</span>
+            </span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderClassFeed() {
+      const today = getTodayString();
+      const todayRecords = state.records.filter(r => r.date === today);
+      const uniqueTodayUsers = new Set(todayRecords.map(r => r.nickname)).size;
+      el.classTodayCount.textContent = uniqueTodayUsers;
+
+      const sortedFeed = [...state.records].sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+
+      if (sortedFeed.length === 0) {
+        el.classFeedList.innerHTML = `
+          <div class="py-12 bg-white rounded-3xl border border-slate-200 text-center text-slate-400 text-xs p-6">
+            <i class="fa-solid fa-comments text-2xl mb-2 block text-slate-300"></i>
+            아직 반 친구들의 인증이 올라오지 않았습니다.<br>가장 먼저 아침 인증을 올리고 반을 이끌어보세요!
+          </div>
+        `;
+        return;
+      }
+
+      el.classFeedList.innerHTML = sortedFeed.map(feed => `
+        <article class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+          <!-- Card Header -->
+          <div class="p-3.5 px-4 flex items-center justify-between border-b border-slate-100">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-500 to-amber-400 text-white font-bold text-xs flex items-center justify-center">
+                ${feed.nickname.slice(0, 1)}
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-800 leading-tight">${escapeHtml(feed.nickname)}</p>
+                <p class="text-[10px] text-slate-600 font-medium">${formatFriendlyDate(feed.date)} ${feed.time}</p>
+              </div>
+            </div>
+            ${feed.date === today ? '<span class="text-[10px] bg-emerald-50 text-emerald-600 font-semibold px-2 py-0.5 rounded-full border border-emerald-200">오늘 인증</span>' : ''}
+          </div>
+
+          <!-- Card Photo -->
+          <div class="bg-slate-900 cursor-pointer max-h-72 overflow-hidden flex items-center justify-center"
+               onclick="openImageDetail('${feed.photo}', '${escapeHtml(feed.resolution)}')">
+            <img src="${feed.photo}" alt="인증" class="w-full h-auto object-cover max-h-72 hover:scale-[1.01] transition duration-200">
+          </div>
+
+          <!-- Card Body & Cheers -->
+          <div class="p-4 space-y-2.5">
+            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
+              <span class="text-brand-600 font-bold mr-1">“</span>${escapeHtml(feed.resolution)}<span class="text-brand-600 font-bold ml-1">”</span>
+            </p>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+              <span class="text-[11px] text-slate-600 font-medium">친구에게 힘이 되는 응원을 보내주세요!</span>
+              <button onclick="handleCheer('${feed.id}')" 
+                      class="flex items-center space-x-1 px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 transition active:scale-95">
+                <i class="fa-solid fa-heart text-xs"></i>
+                <span class="text-xs font-bold">${feed.cheers || 0}</span>
+              </button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderAll() {
+      renderAppHeader();
+      if (state.currentUser) {
+        renderMyRecords();
+        renderClassFeed();
+      }
+    }
+
+    function escapeHtml(string) {
+      if (!string) return '';
+      return String(string)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // 1. Nickname Login
+    el.loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nickname = el.nicknameInput.value.trim();
+      if (!nickname) {
+        showToast("닉네임을 입력해주세요.", "error");
+        return;
+      }
+
+      const btnSubmit = document.getElementById("btnLoginSubmit");
+      const originalHtml = btnSubmit.innerHTML;
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i><span>출석 기록 중...</span>`;
+
+      state.currentUser = nickname;
+      localStorage.setItem(STORAGE_KEY_USER, nickname);
+
+      // 구글 스프레드시트에 로그인(출석) 비동기 전송
+      await sendLoginToGas(nickname);
+      await syncFromGas();
+
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = originalHtml;
+
+      showToast(`${nickname}님, 출석 완료! 아침 공부를 시작해보세요.`);
+      renderAll();
+    });
+
+    // 2. Logout / Nickname Change (커스텀 모달 사용)
+    el.btnLogout.addEventListener("click", () => {
+      if (logoutModal) {
+        logoutModal.classList.remove("hidden");
+      }
+    });
+
+    if (btnCancelLogout) {
+      btnCancelLogout.addEventListener("click", () => {
+        logoutModal.classList.add("hidden");
+      });
+    }
+
+    if (btnConfirmLogout) {
+      btnConfirmLogout.addEventListener("click", () => {
+        logoutModal.classList.add("hidden");
+        state.currentUser = "";
+        localStorage.removeItem(STORAGE_KEY_USER);
+        el.nicknameInput.value = "";
+        renderAll();
+        showToast("로그아웃 되었습니다.");
+      });
+    }
+
+    // 3. Tab Switching
+    el.navTabMy.addEventListener("click", () => {
+      state.currentTab = "my";
+      el.tabMyChallenge.classList.remove("hidden");
+      el.tabClassFeed.classList.add("hidden");
+      el.navTabMy.className = "flex-1 py-1 flex flex-col items-center justify-center text-brand-600 font-bold transition";
+      el.navTabClass.className = "flex-1 py-1 flex flex-col items-center justify-center text-slate-400 font-semibold hover:text-brand-500 transition";
+    });
+
+    el.navTabClass.addEventListener("click", () => {
+      state.currentTab = "class";
+      el.tabClassFeed.classList.remove("hidden");
+      el.tabMyChallenge.classList.add("hidden");
+      el.navTabClass.className = "flex-1 py-1 flex flex-col items-center justify-center text-brand-600 font-bold transition";
+      el.navTabMy.className = "flex-1 py-1 flex flex-col items-center justify-center text-slate-400 font-semibold hover:text-brand-500 transition";
+    });
+
+    // Real-Time Camera Stream Handler
+    async function startCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        // Fallback to native capture input if getUserMedia is unsupported
+        el.cameraInput.click();
+        return;
+      }
+
+      try {
+        stopCamera();
+        const constraints = {
+          video: {
+            facingMode: { ideal: currentFacingMode },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
+        };
+        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        el.cameraVideo.srcObject = cameraStream;
+        el.cameraModal.classList.remove("hidden");
+      } catch (err) {
+        console.warn("Camera streaming failed, falling back to system capture:", err);
+        showToast("실시간 카메라 접근 권한이 없어 파일 선택기를 실행합니다.", "info");
+        el.cameraInput.click();
+      }
+    }
+
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      if (el.cameraVideo) {
+        el.cameraVideo.srcObject = null;
+      }
+    }
+
+    // 4. Photo Capture & Upload Triggers
+    el.btnTriggerCamera.addEventListener("click", () => {
+      startCamera();
+    });
+
+    el.btnCloseCamera.addEventListener("click", () => {
+      stopCamera();
+      el.cameraModal.classList.add("hidden");
+    });
+
+    el.btnFlipCamera.addEventListener("click", () => {
+      currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+      startCamera();
+    });
+
+    // Capture snapshot from live camera feed
+    el.btnCapturePhoto.addEventListener("click", () => {
+      if (!el.cameraVideo || !el.cameraVideo.videoWidth) {
+        showToast("카메라 화면이 아직 로딩 중입니다.", "error");
+        return;
+      }
+
+      const canvas = document.createElement("canvas");
+      let width = el.cameraVideo.videoWidth;
+      let height = el.cameraVideo.videoHeight;
+      const maxDimension = 900;
+
+      if (width > height && width > maxDimension) {
+        height = Math.round((height * maxDimension) / width);
+        width = maxDimension;
+      } else if (height > maxDimension) {
+        width = Math.round((width * maxDimension) / height);
+        height = maxDimension;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(el.cameraVideo, 0, 0, width, height);
+
+      const capturedDataUrl = canvas.toDataURL("image/jpeg", 0.72);
+      state.stagedImageBase64 = capturedDataUrl;
+      el.imagePreview.src = capturedDataUrl;
+      el.previewContainer.classList.remove("hidden");
+
+      stopCamera();
+      el.cameraModal.classList.add("hidden");
+      showToast("공부 인증 사진이 촬영되었습니다! 📸");
+    });
+
+    el.btnTriggerFile.addEventListener("click", () => {
+      el.fileInput.click();
+    });
+
+    el.cameraInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files[0]) {
+        processImageFile(e.target.files[0]);
+      }
+    });
+
+    el.fileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files[0]) {
+        processImageFile(e.target.files[0]);
+      }
+    });
+
+    el.btnRemoveImage.addEventListener("click", () => {
+      state.stagedImageBase64 = null;
+      el.imagePreview.src = "";
+      el.previewContainer.classList.add("hidden");
+      el.cameraInput.value = "";
+      el.fileInput.value = "";
+      showToast("사진이 취소되었습니다.", "info");
+    });
+
+    // 5. Verification Form Submission
+    el.recordForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const resolution = el.dailyResolution.value.trim();
+
+      if (!resolution) {
+        showToast("오늘 나의 결심을 작성해주세요!", "error");
+        return;
+      }
+
+      if (!state.stagedImageBase64) {
+        showToast("인증 사진(촬영 또는 파일)을 첨부해주세요!", "error");
+        return;
+      }
+
+      const submitBtn = document.getElementById("btnSubmitVerification");
+      const originalText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i><span>구글 시트에 저장 중...</span>`;
+
+      const newRecord = {
+        id: "rec_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+        nickname: state.currentUser,
+        date: getTodayString(),
+        time: getTimeString(),
+        resolution: resolution,
+        photo: state.stagedImageBase64,
+        cheers: 0
+      };
+
+      // State & LocalStorage Update
+      state.records.unshift(newRecord);
+      localStorage.setItem(STORAGE_KEY_FEED, JSON.stringify(state.records));
+
+      // Google Apps Script Async Send
+      await sendRecordToGas(newRecord);
+
+      // Form Reset
+      el.dailyResolution.value = "";
+      state.stagedImageBase64 = null;
+      el.previewContainer.classList.add("hidden");
+      el.imagePreview.src = "";
+      el.cameraInput.value = "";
+      el.fileInput.value = "";
+
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+
+      showToast("오늘의 아침 인증이 성공적으로 등록되었습니다! 🌟");
+      renderAll();
+    });
+
+    // 6. Cheer Reaction Handler
+    window.handleCheer = function(recordId) {
+      const target = state.records.find(r => r.id === recordId);
+      if (target) {
+        target.cheers = (target.cheers || 0) + 1;
+        localStorage.setItem(STORAGE_KEY_FEED, JSON.stringify(state.records));
+        renderAll();
+        showToast(`응원을 보냈습니다! ❤️`);
+
+        // 구글 앱스스크립트(시트)에도 응원 수 비동기 전송 반영 (CORS 안전 헤더 적용)
+        if (state.gasUrl) {
+          fetch(state.gasUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: "cheer", id: recordId })
+          }).catch(err => console.warn("응원 동기화 오류:", err));
+        }
+      }
+    };
+
+    // 7. Image Detail Viewer Modal
+    window.openImageDetail = function(imgSrc, caption) {
+      el.detailModalImg.src = imgSrc;
+      el.detailModalCaption.textContent = caption || "";
+      el.imageDetailModal.classList.remove("hidden");
+    };
+
+    el.btnCloseImageDetail.addEventListener("click", () => {
+      el.imageDetailModal.classList.add("hidden");
+      el.detailModalImg.src = "";
+    });
+
+    el.imageDetailModal.addEventListener("click", (e) => {
+      if (e.target === el.imageDetailModal) {
+        el.imageDetailModal.classList.add("hidden");
+      }
+    });
+
+    // 8. Settings & GAS URL Modal
+    el.btnGasSettings.addEventListener("click", () => {
+      el.gasUrlInput.value = state.gasUrl;
+      el.settingsModal.classList.remove("hidden");
+    });
+
+    el.btnCloseSettings.addEventListener("click", () => {
+      el.settingsModal.classList.add("hidden");
+    });
+
+    el.btnSaveGasUrl.addEventListener("click", () => {
+      const url = el.gasUrlInput.value.trim();
+      state.gasUrl = url;
+      localStorage.setItem(STORAGE_KEY_GAS, url);
+      showToast("구글 시트 연동 URL이 저장되었습니다.");
+      el.settingsModal.classList.add("hidden");
+      if (url) {
+        syncFromGas();
+      }
+    });
+
+    el.btnToggleCodeGuide.addEventListener("click", () => {
+      el.gasCodeGuide.classList.toggle("hidden");
+    });
+
+    el.btnRefreshFeed.addEventListener("click", () => {
+      syncFromGas();
+      showToast("피드 데이터를 새로고침했습니다.");
+    });
+
+    // Initial bootstrap
+    window.addEventListener("DOMContentLoaded", () => {
+      // 신규 기본 URL로 동기화 (기존 이전 기본 URL이었던 경우 신규 URL로 자동 갱신)
+      const prevStoredGas = localStorage.getItem(STORAGE_KEY_GAS);
+      if (!prevStoredGas || prevStoredGas.includes("AKfycbw7gK639A4o5Akvhxane02DLxzD_UWKX4AcYbvNVT6_B2CB6BEIv_kHuuwE9HCjGnWO")) {
+        localStorage.setItem(STORAGE_KEY_GAS, DEFAULT_GAS_URL);
+        state.gasUrl = DEFAULT_GAS_URL;
+      }
+      renderAll();
+      if (state.gasUrl) {
+        syncFromGas();
+      }
+    });
+  </script>
+</body>
+</html>
